@@ -1,0 +1,61 @@
+{
+  "app": {
+    "title": "Urimai Kaavalan",
+    "subtitle": "Protecting Legal Rights Through AI-Assisted Access",
+    "login_failed": "Login failed. Please check your credentials."
+  },
+  "nav": {
+    "home": "Home",
+    "cases": "Cases",
+    "documents": "Documents",
+    "rights": "Rights Library",
+    "ai_assistant": "AI Assistant"
+  },
+  "actions": {
+    "login": "Login",
+    "register": "Register Case",
+    "view_details": "View Details",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "login": {
+    "phone": "Phone Number",
+    "password": "Password"
+  },
+  "cases": {
+    "title": "My Cases",
+    "subtitle": "View and track your registered cases."
+  },
+  "dashboard": {
+    "title": "Family Dashboard",
+    "subtitle": "Track your cases and get help.",
+    "need_aid": "Need Legal Aid?",
+    "register_desc": "Register a new case to connect with a Para-Legal Volunteer (PLV).",
+    "active_cases": "Active Cases",
+    "status_pending": "Pending Lawyer Assignment",
+    "today": "Today"
+  },
+  "rights": {
+    "title": "Legal Rights Library",
+    "subtitle": "Understand your rights according to Indian Law.",
+    "disclaimer": "This information is provided for educational purposes and does not constitute legal advice."
+  },
+  "documents": {
+    "title": "Case Documents",
+    "subtitle": "Securely view your case related documents.",
+    "upload": "Upload Document",
+    "empty": "No documents available for this case yet.",
+    "verified": "Verified"
+  },
+  "lawbot": {
+    "title": "AI Legal Assistant",
+    "subtitle": "AI-assisted explanation of rights",
+    "disclaimer": "AI assists with legal literacy. Always consult a lawyer for specific case advice.",
+    "placeholder": "Ask a legal question in English or Tamil...",
+    "send": "Send",
+    "greeting": "Hello, I am the AI Legal Assistant. How can I help you understand your rights today?",
+    "response_stub": "I am a stubbed AI assistant for Phase 4. I can only provide general legal information, not case-specific advice.",
+    "verified": "Verified Legal Source"
+  }
+}

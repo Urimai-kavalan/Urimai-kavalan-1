@@ -1,0 +1,373 @@
+--- PAGE 1 ---
+NYAY-SATHI
+01 — Government Product Requirements Document (PRD) (cid:127) Version 1.0 (cid:127) August 2026
+Justice Companion
+AI-assisted legal-access and undertrial-support platform for families of undertrial prisoners in India.
+Core principle: AI assists. Verified law explains. Humans verify. Courts decide.
+Document purpose
+This PRD is the master blueprint for taking Nyay-Sathi from concept to a controlled, government-oriented pilot. It
+defines product scope, users, workflows, architecture, AI/RAG, legal-rule governance, legal-aid routing, security,
+testing, deployment, pilot governance and measurable outcomes.
+Important: This document is a product/engineering specification, not legal advice and not a claim of government endorsement or integration.
+NYAY-SATHI (cid:127) Government PRD v1.0 Page 1
+--- PAGE 2 ---
+1. Executive Summary
+Nyay-Sathi is designed as an access, intelligence and coordination layer around India's existing justice and legal-aid
+ecosystem. It should not replace ICJS, e-Prisons, e-Courts, NALSA/SLSA/DLSA processes, police systems, prisons
+or courts. The platform's distinctive value is the combination of family-facing access, voice/vernacular support,
+statute-grounded legal information, potential eligibility screening, human legal review and routing into authorized
+legal-aid support.
+(cid:127) Family access through web/mobile and voice-oriented channels.
+(cid:127) Case intake and understandable case-status/timeline information.
+(cid:127) Document upload and structured extraction with user/PLV verification.
+(cid:127) Versioned legal-source registry and citation-grounded RAG.
+(cid:127) Rule-based eligibility screening first; ML only after controlled evaluation.
+(cid:127) Legal-aid/lawyer/PLV routing with workload, language, district and SLA considerations.
+(cid:127) Human-override logging, auditability and bias/fairness evaluation.
+(cid:127) Prison-side confirmation channel and URC-ready reporting.
+(cid:127) Rights education, surety/bail-bond navigation and post-release support hooks.
+2. Problem Statement
+(cid:127) Families may struggle to understand case status, legal terminology, documents, deadlines and available legal-aid
+pathways.
+(cid:127) Existing justice infrastructure is fragmented from the perspective of a family member who needs a simple,
+vernacular, actionable interface.
+(cid:127) Legal information may exist but not be translated into plain-language next steps.
+(cid:127) Potential statutory-review signals can be missed when no one notices or raises the relevant issue.
+(cid:127) Voice/feature-phone access and low-literacy support are central accessibility requirements for the intended user
+journey.
+The user-provided August 2026 analysis identifies ICJS/e-Prisons as internal government infrastructure,
+e-Courts/NJDG as public case-status portals, research systems such as IBPS/NyayaRAG/NyayaAI, and
+Nyaya-Sahaya as the closest student-built analogue. It concludes that no identified platfor
+Source notes appear in Section 35.
+family-facing, voice-first, statute-grounded and human-routed scope proposed for Nyay-S
+represented in the source notes below.
+3. Product Positioning
+Positioning statement: A digital bridge between families, legal-aid institutions and India's justice ecosystem.
+(cid:127) Not an AI judge.
+(cid:127) Not an autonomous bail-decision system.
+(cid:127) Not a replacement for lawyers.
+(cid:127) Not a replacement for ICJS/e-Prisons/e-Courts.
+(cid:127) An assistive layer for access, understanding, triage, routing, monitoring and accountability.
+4. Objectives
+NYAY-SATHI (cid:127) Government PRD v1.0 Page 2
+--- PAGE 3 ---
+(cid:127) Reduce friction between families and legitimate legal-aid pathways.
+(cid:127) Make case information understandable in simple language and vernacular formats.
+(cid:127) Surface potential legal-review signals with transparent evidence and citations.
+(cid:127) Connect eligible/priority cases to authorized legal-aid professionals.
+(cid:127) Provide proactive, trackable milestones and alerts.
+(cid:127) Create an auditable human-in-the-loop workflow.
+(cid:127) Enable government users to monitor queues, SLAs and unresolved access gaps.
+(cid:127) Prepare the platform for standards-based integration rather than parallel data silos.
+5. Target Users & Roles
+Role Primary needs Access
+Family user Case status, rights, documents, legal aid, updates, voice Family portal
+PLV Assisted intake, verification, case completion, field support Legal-aid portal
+Legal-aid lawyer Case queue, documents, AI brief, sources, tasks, review Legal-aid portal
+DLSA/SLSA officer Triage, allocation, SLA, reports, oversight Admin/legal-aid portal
+Prison officer Restricted custody/case fact confirmation Prison channel
+Legal reviewer Verify sources/rules, review AI disagreements Reviewer portal
+State/district admin Operational analytics and governance Admin portal
+System admin/auditor Security, audit, configuration Restricted admin
+6. Product Scope — Five Interfaces
+(cid:127) Family Portal: landing, onboarding, case search, case dashboard, timeline, documents, legal screening, rights
+library, legal aid, notifications and voice help.
+(cid:127) Legal-Aid Portal: case queue, assignment, AI brief, verified legal sources, tasks, SLA and resolution.
+(cid:127) Government/Admin Portal: district/state analytics, queue management, allocation, escalation, URC-ready export
+and AI audit.
+(cid:127) Prison-side Channel: restricted confirmation of custody, transfer, arrest and release-related facts.
+(cid:127) Voice/IVR Layer: feature-phone-friendly intake, case status, rights information and connection to support.
+7. End-to-End User Journey
+Discovery fi Intake fi Case creation fi Document/record verification fi Legal-source retrieval fi Rule
+screening fi Explainable result fi Human legal review fi Legal-aid routing fi Family notification fi
+Hearing/action fi Resolution fi Post-release follow-up.
+(cid:127) Allow incomplete intake and PLV-assisted completion when the family does not know an FIR/CNR number.
+(cid:127) Show source, date and verification status for important case/legal information.
+(cid:127) Every high-impact AI signal must provide a human-review path.
+(cid:127) Every important workflow action must generate a case event and audit record.
+NYAY-SATHI (cid:127) Government PRD v1.0 Page 3
+--- PAGE 4 ---
+8. Family Portal Requirements
+(cid:127) Home: Search Case, Check Legal Screening, Upload Document, Get Legal Aid, Know Your Rights, Voice Help.
+(cid:127) Case dashboard: case identifier, status, custody information when verified, next action, legal-aid status and timeline.
+(cid:127) Document center: upload, preview, extraction, field verification and secure access.
+(cid:127) Rights library: simple-language cards, audio, language selection and source metadata.
+(cid:127) Notifications: case updates, document requests, lawyer assignment, hearing reminders and configured escalation
+alerts.
+(cid:127) Accessibility: mobile-first, large touch targets, screen-reader semantics, reduced motion and low-bandwidth states.
+9. Legal-Aid Workflow
+Family/PLV request fi eligibility/priority triage fi district/language/case-type matching fi lawyer/PLV
+assignment fi SLA timer fi human review fi action fi resolution.
+(cid:127) Maintain verified lawyer/PLV profiles and availability.
+(cid:127) Never fabricate or display an unverified professional as verified.
+(cid:127) Use configurable SLA policies rather than hard-coded assumptions.
+(cid:127) Support escalation to supervisors when configured response windows are approaching or breached.
+10. Case & Timeline Engine
+(cid:127) Case states: NEW, INTAKE_INCOMPLETE, UNDER_REVIEW, LEGAL_AID_REQUESTED,
+LAWYER_ASSIGNED, ACTION_REQUIRED, HEARING_SCHEDULED, RESOLVED, ESCALATED.
+(cid:127) Events: case created, document uploaded, extraction verified, screening completed, human review, lawyer
+assigned, hearing scheduled, outcome recorded, release confirmed.
+(cid:127) Every event stores actor, timestamp, source, status and relevant evidence/reference.
+11. Document Intelligence
+PDF/JPG/PNG fi OCR fi structured extraction fi confidence per field fi source page fi user/PLV verification
+fi case record.
+(cid:127) Extract FIR number, police station, accused name, sections, dates, court and other supported fields.
+(cid:127) Never silently trust OCR.
+(cid:127) Store extraction confidence and source location.
+(cid:127) Allow correction and retain an audit trail.
+12. Legal Knowledge & RAG
+(cid:127) Create an approved legal-source registry.
+(cid:127) Store law/section/title/version/effective dates/source URL/verification status/reviewer.
+(cid:127) Chunk and index approved documents.
+(cid:127) Retrieve relevant provisions before generation.
+(cid:127) Require citation-backed substantive legal explanations.
+(cid:127) Run citation validation and safety checks before returning answers.
+NYAY-SATHI (cid:127) Government PRD v1.0 Page 4
+--- PAGE 5 ---
+(cid:127) If no approved source supports the answer, the system must abstain and route to human support.
+RAG rule: Retrieval is a prerequisite for legal explanation; free-form model knowledge must not be treated as
+authoritative legal source material.
+13. Eligibility / Screening Engine
+The first production-oriented implementation should be a versioned, rule-based screening engine. ML should be
+a later, separately evaluated layer.
+(cid:127) Normalize case facts.
+(cid:127) Load applicable rule versions.
+(cid:127) Evaluate conditions and exceptions.
+(cid:127) Return a potential signal, not a court outcome.
+(cid:127) Show detected facts, rule/source, missing information and confidence band.
+(cid:127) Require human verification for consequential actions.
+(cid:127) Keep legal rules separate from UI code.
+14. Confidence & Explainability
+(cid:127) Use High/Medium/Low or equivalent bands for screening confidence.
+(cid:127) Define confidence as information/model reliability, not probability of a court granting bail.
+(cid:127) Show why a signal was raised.
+(cid:127) Show which facts are missing or unverified.
+(cid:127) Show exact legal source and version.
+(cid:127) Record reviewer agreement/disagreement.
+15. Human-in-the-Loop
+AI signal fi legal reviewer/PLV/lawyer fi agree or override fi reason fi audit log fi evaluation dataset.
+(cid:127) Every override requires a reason.
+(cid:127) Never hide AI-human disagreement.
+(cid:127) Use disagreements for audit and model/rule improvement only under approved governance.
+(cid:127) AI must remain advisory.
+16. Bias & AI Evaluation
+(cid:127) Build a held-out evaluation set before trusting an ML layer.
+(cid:127) Measure retrieval accuracy, citation correctness, hallucination rate, rule accuracy and human agreement.
+(cid:127) Track false positives and false negatives.
+(cid:127) Audit performance across operational dimensions such as district, offence category, language and legal-aid
+availability where appropriate.
+(cid:127) Have legal/ethics reviewers inspect disagreements before scale.
+17. New / Differentiating Modules
+NYAY-SATHI (cid:127) Government PRD v1.0 Page 5
+--- PAGE 6 ---
+(cid:127) Family-side literacy nudges: short contextual rights explanations.
+(cid:127) Surety/bail-bond navigator using verified support resources.
+(cid:127) Prison-side confirmation channel.
+(cid:127) Post-release reintegration hooks.
+(cid:127) URC-ready export and triage support.
+(cid:127) Legal-source change management.
+(cid:127) Document comparison / 'what changed?' feature.
+(cid:127) Action-oriented 'What do I do next?' guidance.
+18. Integration Strategy
+Nyay-Sathi should use an adapter architecture: Core Case Service fi Integration Interface fi
+ICJS/e-Courts/prison/legal-aid connectors when official access is authorized.
+(cid:127) Do not build unofficial scrapers for government systems.
+(cid:127) Use documented APIs, approved data-sharing mechanisms, or manual verified entry where official integration is
+unavailable.
+(cid:127) Define stable CaseRecord, CustodyRecord, CourtRecord, LegalAidRequest and CaseEvent contracts.
+(cid:127) Keep integration failures visible and auditable.
+19. Data Model — Core Entities
+(cid:127) Identity: users, roles, permissions, families, prisoners.
+(cid:127) Case: cases, case_events, case_statuses, case_priorities.
+(cid:127) Documents: documents, document_pages, document_extractions.
+(cid:127) Legal knowledge: legal_sources, legal_rules, legal_rule_versions, legal_citations.
+(cid:127) AI: eligibility_checks, eligibility_results, model_versions, model_evaluations, bias_audits.
+(cid:127) Legal aid: lawyers, lawyer_languages, lawyer_specializations, legal_aid_requests, lawyer_assignments,
+sla_records.
+(cid:127) Operations: notifications, voice_sessions, prison_confirmations, human_reviews, human_overrides, audit_logs.
+(cid:127) Integration: organizations, districts, police_stations, courts, prisons, integration_records.
+20. API Domains
+/auth (cid:127) /users (cid:127) /cases (cid:127) /documents (cid:127) /legal (cid:127) /eligibility (cid:127) /legal-aid (cid:127) /lawyers (cid:127) /assignments (cid:127)
+/notifications (cid:127) /voice (cid:127) /prison (cid:127) /admin (cid:127) /audit (cid:127) /analytics (cid:127) /integrations
+21. Security & Privacy
+(cid:127) RBAC and least privilege.
+(cid:127) Private document storage with signed access.
+(cid:127) Encryption in transit and at rest.
+(cid:127) Secure authentication/session management.
+(cid:127) Input validation and rate limiting.
+NYAY-SATHI (cid:127) Government PRD v1.0 Page 6
+--- PAGE 7 ---
+(cid:127) Malware scanning for uploaded files.
+(cid:127) Audit logs for sensitive access and changes.
+(cid:127) Backups and disaster recovery.
+(cid:127) Development uses synthetic/composite data only.
+(cid:127) Production privacy, retention, consent/notice and data-sharing rules require formal legal/security review.
+22. Voice / IVR
+(cid:127) Feature-phone-friendly call flow.
+(cid:127) Language selection.
+(cid:127) Speech-to-text and text-to-speech architecture.
+(cid:127) Same backend case and legal services as web.
+(cid:127) Low-literacy prompts.
+(cid:127) Fallback to PLV/support when confidence is low.
+(cid:127) Do not make voice responses sound like final legal advice.
+23. UX / Design System
+(cid:127) Premium civic-tech visual language: trustworthy, calm, accessible, human.
+(cid:127) Mobile-first with large touch targets.
+(cid:127) Inter + Noto Sans Tamil (or equivalent multilingual font strategy).
+(cid:127) Subtle motion; respect prefers-reduced-motion.
+(cid:127) Use progressive disclosure to avoid overwhelming families.
+(cid:127) Always show status, next action and source where relevant.
+24. Technology Recommendation
+Layer Recommended starting stack
+Frontend React + TypeScript + Vite + Tailwind CSS + shadcn/ui + Framer Motion
+Backend Node.js + Express + TypeScript
+Database PostgreSQL / Supabase
+Vector search pgvector
+Storage Private object storage / Supabase Storage during prototype
+AI Provider-agnostic LLM API behind backend
+OCR Provider-agnostic OCR service
+Charts Recharts
+Development deployment Vercel + Render/Railway + Supabase
+Production Government-approved infrastructure and security architecture
+25. Repository / Workspace Structure
+NYAY-SATHI (cid:127) Government PRD v1.0 Page 7
+--- PAGE 8 ---
+NYAY-SATHI/
+nnn 01-PRODUCT/
+nnn 02-RESEARCH/
+nnn 03-PRD/
+nnn 04-UI-UX/
+nnn 05-ARCHITECTURE/
+nnn 06-DATABASE/
+nnn 07-BACKEND/
+nnn 08-FRONTEND/
+nnn 09-AI-RAG/
+nnn 10-LEGAL-RULES/
+nnn 11-LEGAL-AID/
+nnn 12-VOICE/
+nnn 13-INTEGRATIONS/
+nnn 14-SECURITY/
+nnn 15-TESTING/
+nnn 16-DEPLOYMENT/
+nnn 17-GOVERNMENT-PILOT/
+nnn 18-DOCUMENTATION/
+Implementation workspace:
+apps/ services/ packages/ database/ legal/ ai/ integrations/ tests/ docs/ scripts/
+26. A-to-Z Implementation Plan
+Phase Deliverables
+0 — Governance & research Stakeholders, legal review, existing-system map, scope, risks.
+1 — PRD & acceptance criteria Freeze requirements, roles, user stories, non-functional requirements.
+2 — UI/UX Figma/design system, mobile-first flows, accessibility, prototype testing.
+3 — Foundation Workspace, repo, auth, RBAC, database, API skeleton, logging.
+4 — Case engine Case creation/search, timeline, documents, notifications.
+5 — Document AI Upload, OCR, extraction, verification.
+6 — Legal knowledge Approved source registry, versioning, indexing, retrieval.
+7 — Rule engine Versioned legal rules, screening signals, explainability, human review.
+8 — Legal RAG Retrieval, citations, abstention, guardrails, evaluation.
+9 — Legal-aid routing Lawyer/PLV registry, matching, assignment, SLA, escalation.
+10 — Voice IVR-ready flow, STT/TTS, language, fallback.
+11 — Admin/government Dashboards, analytics, URC-ready export, audit center.
+12 — Prison channel Restricted custody/transfer/release confirmation.
+13 — Security Threat model, access control, secure files, privacy, audit.
+14 — Testing Unit, integration, API, RAG, rule, accessibility, performance, security.
+15 — Pilot Single district/state controlled pilot, training, governance, KPI measurement.
+16 — Scale readiness Interoperability, operations, support, disaster recovery, procurement/governance.
+27. Antigravity + Claude Operating Method
+(cid:127) Antigravity: primary implementation agent/workspace. Open the project folder as a workspace, keep review-driven
+development enabled, use implementation plans/tasks/walkthroughs, and work phase-by-phase.
+(cid:127) Claude: senior reviewer for architecture, code review, security review, RAG prompt review, documentation and
+adversarial testing.
+NYAY-SATHI (cid:127) Government PRD v1.0 Page 8
+--- PAGE 9 ---
+(cid:127) Rule: no agent may silently change the architecture or legal assumptions; update the PRD/decision log first.
+(cid:127) Evidence: after every phase, keep tests, screenshots/walkthroughs, decision notes and a phase status record.
+28. Antigravity Workspace Setup
+(cid:127) Create one empty local folder named NYAY-SATHI.
+(cid:127) Open that folder in Antigravity as the workspace; Antigravity's official codelab describes Open Folder as the starting
+point for a local workspace.
+(cid:127) Use the Agent panel to request planning before coding.
+(cid:127) Use review-driven development and inspect terminal/file-system permissions before allowing changes.
+(cid:127) Use workspace Rules under .agents/rules/ and Workflows under .agents/workflows/ to preserve project standards.
+(cid:127) Keep the project skeleton and PRD inside the workspace so the agent always has the same source of truth.
+Official Antigravity guidance: https://codelabs.developers.google.com/getting-started-agy-ide
+29. Master Source-of-Truth Files
+(cid:127) 03-PRD/01_NYAY_SATHI_GOVERNMENT_PRD.pdf — product requirements.
+(cid:127) 05-ARCHITECTURE/SYSTEM_ARCHITECTURE.md — current architecture.
+(cid:127) 10-LEGAL-RULES/LEGAL_RULE_GOVERNANCE.md — legal-source/rule governance.
+(cid:127) 14-SECURITY/SECURITY_BASELINE.md — security controls.
+(cid:127) 17-GOVERNMENT-PILOT/PILOT_PLAN.md — pilot scope and governance.
+(cid:127) 18-DOCUMENTATION/PROJECT_STATUS.md — phase status and blockers.
+(cid:127) .agents/rules/ — persistent Antigravity workspace rules.
+(cid:127) .agents/workflows/ — reusable build/test/review workflows.
+30. Acceptance Criteria
+(cid:127) Every major user journey works end-to-end using synthetic data.
+(cid:127) Family can create/find a case and understand its current status.
+(cid:127) Documents can be uploaded, extracted and verified.
+(cid:127) Legal explanations cite approved, versioned sources or abstain.
+(cid:127) Eligibility screening produces explainable advisory signals.
+(cid:127) Human review and override are auditable.
+(cid:127) Legal-aid matching and SLA workflow works.
+(cid:127) Admin dashboards show operational metrics.
+(cid:127) Voice architecture has a tested demo/fallback.
+(cid:127) Security and authorization tests pass.
+(cid:127) Mobile and accessibility tests pass.
+(cid:127) Pilot plan defines stakeholders, training, governance, support and KPIs.
+31. KPIs / Success Metrics
+(cid:127) Median time from legal-aid request to verified assignment.
+NYAY-SATHI (cid:127) Government PRD v1.0 Page 9
+--- PAGE 10 ---
+(cid:127) Percentage of cases successfully routed.
+(cid:127) Percentage of substantive legal responses with valid citations.
+(cid:127) Document extraction accuracy on a labelled test set.
+(cid:127) AI-human disagreement/override rate.
+(cid:127) False-positive and false-negative rates for any evaluated ML component.
+(cid:127) SLA breach rate.
+(cid:127) Notification delivery success rate.
+(cid:127) Family comprehension / task-completion rate.
+(cid:127) Voice interaction completion rate.
+(cid:127) System availability and incident response metrics.
+32. Risk Register
+Risk Impact Mitigation
+Legal hallucination Critical Approved-source RAG, citation validation, abstention, human review
+Outdated law Critical Versioned legal sources, effective dates, legal reviewer
+AI bias High Held-out evaluation, disaggregated audit, human override
+Unauthorized access Critical RBAC, least privilege, secure storage, audit
+Government integration unavailableHigh Adapter architecture + manual verified fallback
+Poor OCR Medium/High Confidence per field + user/PLV verification
+Low digital literacy High Voice, simple language, PLV support
+Over-automation High Advisory-only positioning, human review
+Operational adoption High Pilot, training, SOP alignment, stakeholder co-design
+33. Pilot Strategy
+(cid:127) Start with one state and a tightly scoped district/pilot environment.
+(cid:127) Prefer a legal-aid institution as the first operational stakeholder because the platform's immediate value is access
+and routing.
+(cid:127) Use synthetic data during development and controlled, approved data only during a formal pilot.
+(cid:127) Define governance, legal review, security review, user training, support and incident escalation before live use.
+(cid:127) Do not claim government partnership, official integration or endorsement until formally obtained.
+34. Two Core Demonstration Journeys
+Journey A — Family access: feature-phone/portal intake fi incomplete case fi PLV completion fi document
+verification fi screening fi plain-language explanation fi legal-aid routing fi lawyer assignment fi family notification
+fi hearing/action fi resolution.
+Journey B — Urgent statutory review: custody/investigation data fi versioned rule engine fi potential review
+signal fi urgent priority fi DLSA/legal-aid queue fi human verification fi action fi audit.
+35. Research Basis & Source Notes
+NYAY-SATHI (cid:127) Government PRD v1.0 Page 10
+--- PAGE 11 ---
+(cid:127) User-provided NYAY-SATHI Project Analysis Report, August 2026: existing-solutions landscape, feature
+comparison, recommended additions, illustrative Ramesh/Iqbal case studies and pilot recommendation.
+(cid:127) Ministry of Home Affairs — ICJS:
+https://www.mha.gov.in/en/commoncontent/inter-operable-criminal-justice-system-icjs
+(cid:127) NALSA — FAQs / legal-aid information: https://nalsa.gov.in/faqs/
+(cid:127) NALSA — Prisoner/legal-aid SOP materials: https://chandigarh.nalsa.gov.in/
+(cid:127) TNSLSA — Legal Aid: https://tamilnadu.nalsa.gov.in/legal-aid/
+(cid:127) Google Antigravity official codelab: https://codelabs.developers.google.com/getting-started-agy-ide
+Source-derived basis from the user-provided report: the landscape comparison states that ICJS/e-Prisons provide government
+infrastructure, research systems cover legal RAG/bail prediction, Nyaya-Sahaya is the closest student project, and the proposed
+Source basis: user-provided NYAY-SATHI Analysis Report, August 2026; feature comparison and landscape findings.
+The same report recommends citation-backed rationale, confidence banding, held-out evaluation, ICJS-native contracts, URC export, bias
+36. Final Product Principle
+NYAY-SATHI should be built as a trustworthy civic-tech system where AI detects, verified law explains,
+humans verify, and the justice system decides. The project's credibility comes from interoperability,
+legal-source governance, human control, accessibility, security and measurable operational improvement—not
+from claiming that an AI can predict or decide court outcomes.
+NYAY-SATHI (cid:127) Government PRD v1.0 Page 11

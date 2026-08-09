@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CITIZEN
+  FAMILY
+  PLV
+  LAWYER
+  DLSA
+  SLSA
+  PRISON_OFFICER
+  LEGAL_REVIEWER
+  SYS_ADMIN
+}
+
+enum CaseStatus {
+  NEW
+  INTAKE_INCOMPLETE
+  PENDING_VERIFICATION
+  PENDING_ASSIGNMENT
+  ASSIGNED
+  UNDER_REVIEW
+  CLOSED
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+}
+
+model User {
+  id             String    @id @default(uuid())
+  phoneNumber    String    @unique // Used for primary auth
+  passwordHash   String?   // Null for OTP only accounts
+  role           Role      @default(CITIZEN)
+  isActive       Boolean   @default(true)
+  districtId     String?
+  languagePref   String    @default("ta")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relationships
+  casesAsFamily  Case[]    @relation("FamilyCases")
+  casesAsLawyer  Case[]    @relation("LawyerCases")
+  events         CaseEvent[]
+  notifications  Notification[]
+}
+
+model Case {
+  id                String     @id @default(uuid())
+  cnrNumber         String?    // Optional until verified
+  firNumber         String?
+  policeStation     String
+  districtId        String
+  status            CaseStatus @default(NEW)
+  familyId          String
+  family            User       @relation("FamilyCases", fields: [familyId], references: [id])
+  assignedLawyerId  String?
+  assignedLawyer    User?      @relation("LawyerCases", fields: [assignedLawyerId], references: [id])
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  // Relationships
+  documents         Document[]
+  events            CaseEvent[]
+}
+
+model Document {
+  id                String   @id @default(uuid())
+  caseId            String
+  caseRecord        Case     @relation(fields: [caseId], references: [id])
+  documentType      String   // FIR, RemandOrder, BailOrder
+  fileUrl           String   // Path in secure storage
+  isVerified        Boolean  @default(false)
+  ocrConfidence     Float?
+  uploadedAt        DateTime @default(now())
+}
+
+model CaseEvent {
+  id          String   @id @default(uuid())
+  caseId      String
+  caseRecord  Case     @relation(fields: [caseId], references: [id])
+  eventType   String   // e.g., STATUS_CHANGE, DOC_UPLOAD, AI_OVERRIDE
+  actorId     String
+  actor       User     @relation(fields: [actorId], references: [id])
+  details     Json?    // Flexible metadata
+  createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  title       String
+  message     String
+  status      NotificationStatus @default(UNREAD)
+  createdAt   DateTime @default(now())
+}
