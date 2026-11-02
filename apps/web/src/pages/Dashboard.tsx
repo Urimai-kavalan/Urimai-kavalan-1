@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/useLanguage';
 import { PlusCircle, FileText, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

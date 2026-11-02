@@ -8,7 +8,7 @@ export const loginSchema = z.object({
 
 export const caseIntakeSchema = z.object({
   policeStation: z.string().min(1, 'Police station is required'),
-  districtId: z.string().uuid('Invalid district ID'),
+  districtId: z.string().min(1, 'District ID is required'),
   firNumber: z.string().optional(),
   cnrNumber: z.string().optional(),
 });

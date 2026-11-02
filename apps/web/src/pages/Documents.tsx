@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/useLanguage';
 import { FileText, Upload } from 'lucide-react';
 
 export const Documents: React.FC = () => {

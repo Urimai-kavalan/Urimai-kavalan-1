@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Scale, Eye, EyeOff } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { fetchApi } from '../utils/api';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/useLanguage';
 
 export const Login: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -15,7 +15,7 @@ export const Login: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useLanguage();
+  const { t, lang , setLang } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +40,14 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg-base p-4">
+    <div className="min-h-screen flex items-center justify-center bg-bg-base p-4 relative">
+  <button
+    type="button"
+    onClick={() => setLang(lang === 'ta' ? 'en' : 'ta')}
+    className="absolute top-5 right-5 text-sm font-medium border border-primary px-3 py-2 rounded-md text-primary hover:bg-primary hover:text-white transition-colors"
+  >
+    {lang === 'ta' ? 'English' : 'தமிழ்'}
+  </button>
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="bg-primary p-6 text-center text-white">
           <div className="flex justify-center mb-4">

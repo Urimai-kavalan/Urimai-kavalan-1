@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/useLanguage';
 import { fetchApi } from '../utils/api';
 import { Scale, Info, ChevronDown, ChevronUp } from 'lucide-react';
 

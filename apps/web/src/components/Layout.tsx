@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, FileText, Scale, MessageSquare, Bell, User, LogOut, Settings, Menu, X } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/useLanguage';
+import { useAuth } from '../context/useAuth';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { lang, setLang, t } = useLanguage();
