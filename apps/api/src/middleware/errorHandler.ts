@@ -2,14 +2,19 @@ import { Request, Response, NextFunction } from 'express';
 import { ZodError, ZodIssue } from 'zod';
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(`[Error] ${req.method} ${req.url}`, err);
-
-  if (err instanceof ZodError) {
+  // Validation errors are expected user mistakes: respond without logging the object
+  if (err instanceof ZodError || err?.name === 'ZodError') {
     return res.status(400).json({
       error: 'Validation Error',
-      details: err.errors.map((e: ZodIssue) => ({ path: e.path.join('.'), message: e.message }))
+      details: (err.issues ?? err.errors).map((e: ZodIssue) => ({
+        path: e.path.join('.'),
+        message: e.message
+      }))
     });
   }
+
+  // Log only the message, never the raw error object
+  console.error(`[Error] ${req.method} ${req.url}`, err?.message ?? String(err));
 
   // Handle generic JWT errors
   if (err.name === 'UnauthorizedError' || err.name === 'JsonWebTokenError') {

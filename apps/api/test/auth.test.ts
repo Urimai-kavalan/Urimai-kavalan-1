@@ -14,7 +14,9 @@ describe('Auth Routes', () => {
       const response = await request(app).post('/api/auth/login').send({
         phoneNumber: '123' // too short
       });
-      
+
+      console.log('DEBUG', response.status, response.text);
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('details');
     });
@@ -26,7 +28,7 @@ describe('Auth Routes', () => {
         phoneNumber: '9876543210',
         password: 'password123'
       });
-      
+
       expect(response.status).toBe(401);
       expect(response.body.error).toMatch(/invalid credentials/i);
     });
@@ -39,7 +41,7 @@ describe('Auth Routes', () => {
         role: 'CITIZEN',
         isActive: true
       });
-      
+
       vi.spyOn(authUtils, 'comparePassword').mockResolvedValue(true);
       vi.spyOn(authUtils, 'generateToken').mockReturnValue('mocked-token');
 
@@ -47,7 +49,7 @@ describe('Auth Routes', () => {
         phoneNumber: '9876543210',
         password: 'password123'
       });
-      
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('token', 'mocked-token');
       expect(response.body.user).toMatchObject({ id: '1', role: 'CITIZEN' });
