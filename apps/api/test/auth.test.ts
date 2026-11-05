@@ -15,7 +15,6 @@ describe('Auth Routes', () => {
         phoneNumber: '123' // too short
       });
 
-      console.log('DEBUG', response.status, response.text);
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('details');
