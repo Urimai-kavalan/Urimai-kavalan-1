@@ -15,7 +15,8 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) 
       where: { familyId: userId },
       include: {
         assignedLawyer: { select: { id: true, phoneNumber: true } },
-        documents: true
+        documents: true,
+        accused: { include: { offences: true } }
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -30,7 +31,7 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) 
 router.post('/', requireAuth, validateRequest(caseIntakeSchema), async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user!.userId;
-    const { policeStation, districtId, firNumber, cnrNumber } = req.body;
+    const { policeStation, districtId, firNumber, cnrNumber, chargesheetFiledOn, accused } = req.body;
 
     const newCase = await prisma.case.create({
       data: {
@@ -38,8 +39,12 @@ router.post('/', requireAuth, validateRequest(caseIntakeSchema), async (req: Aut
         districtId,
         firNumber,
         cnrNumber,
+        chargesheetFiledOn,
         familyId: userId,
         status: 'NEW',
+        accused: accused
+          ? { create: { ...accused, offences: { create: accused.offences } } }
+          : undefined,
         events: {
           create: {
             eventType: 'CASE_CREATED',
@@ -47,7 +52,8 @@ router.post('/', requireAuth, validateRequest(caseIntakeSchema), async (req: Aut
             details: { method: 'app_intake' }
           }
         }
-      }
+      },
+      include: { accused: { include: { offences: true } } }
     });
 
     return res.status(201).json({ case: newCase });

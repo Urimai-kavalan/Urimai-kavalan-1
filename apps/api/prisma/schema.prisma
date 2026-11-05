@@ -34,6 +34,12 @@ enum NotificationStatus {
   READ
 }
 
+enum LawAct {
+  BNS
+  IPC
+  SPECIAL
+}
+
 model User {
   id             String    @id @default(uuid())
   phoneNumber    String    @unique // Used for primary auth
@@ -53,22 +59,49 @@ model User {
 }
 
 model Case {
-  id                String     @id @default(uuid())
-  cnrNumber         String?    // Optional until verified
-  firNumber         String?
-  policeStation     String
-  districtId        String
-  status            CaseStatus @default(NEW)
-  familyId          String
-  family            User       @relation("FamilyCases", fields: [familyId], references: [id])
-  assignedLawyerId  String?
-  assignedLawyer    User?      @relation("LawyerCases", fields: [assignedLawyerId], references: [id])
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  id                 String     @id @default(uuid())
+  cnrNumber          String?    // Optional until verified
+  firNumber          String?
+  policeStation      String
+  districtId         String
+  status             CaseStatus @default(NEW)
+  chargesheetFiledOn DateTime?
+  familyId           String
+  family             User       @relation("FamilyCases", fields: [familyId], references: [id])
+  assignedLawyerId   String?
+  assignedLawyer     User?      @relation("LawyerCases", fields: [assignedLawyerId], references: [id])
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 
   // Relationships
-  documents         Document[]
-  events            CaseEvent[]
+  accused            Accused?
+  documents          Document[]
+  events             CaseEvent[]
+}
+
+model Accused {
+  id                  String    @id @default(uuid())
+  caseId              String    @unique
+  caseRecord          Case      @relation(fields: [caseId], references: [id])
+  name                String
+  custodyStartDate    DateTime? // date of arrest / start of custody
+  isFirstTimeOffender Boolean?  // null = unknown
+  otherPendingCases   Boolean   @default(false)
+  dataVerified        Boolean   @default(false) // true only after a PLV/lawyer confirms the facts
+  offences            Offence[]
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model Offence {
+  id                        String   @id @default(uuid())
+  accusedId                 String
+  accused                   Accused  @relation(fields: [accusedId], references: [id], onDelete: Cascade)
+  act                       LawAct
+  section                   String   // e.g. "303(2)"
+  isBailable                Boolean?
+  maxSentenceYears          Float?
+  punishableWithDeathOrLife Boolean  @default(false)
 }
 
 model Document {
