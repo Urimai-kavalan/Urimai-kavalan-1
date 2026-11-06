@@ -1,5 +1,8 @@
 import { vi } from 'vitest';
 
+// Required by src/utils/auth.ts; must be set before any app code is imported
+process.env.JWT_SECRET = 'test-secret';
+
 // Mock Prisma for unit testing without a live DB
 vi.mock('../src/db/prisma', () => {
   const prisma: any = {
@@ -9,11 +12,11 @@ vi.mock('../src/db/prisma', () => {
     },
     case: {
       findMany: vi.fn(),
-      findUnique: vi.fn(),
+      findFirst: vi.fn(),
       create: vi.fn(),
     },
     accused: {
-      findUnique: vi.fn(),
+      findFirst: vi.fn(),
       update: vi.fn(),
     },
     eligibilityAssessment: {

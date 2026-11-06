@@ -4,7 +4,7 @@ import { prisma } from '../src/db/prisma';
 
 vi.mock('../src/middleware/rbac', () => ({
   requireAuth: (req: any, res: any, next: any) => {
-    req.user = { userId: 'plv-1', role: 'PLV' };
+    req.user = { userId: 'plv-1', role: 'PLV', districtId: 'chennai-01' };
     next();
   },
   requireRole: () => (req: any, res: any, next: any) => next(),
@@ -31,19 +31,19 @@ describe('POST /api/cases/:id/eligibility', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('returns 404 when the case does not exist', async () => {
-    p.case.findUnique.mockResolvedValue(null);
+    p.case.findFirst.mockResolvedValue(null);
     const res = await request(app).post('/api/cases/nope/eligibility');
     expect(res.status).toBe(404);
   });
 
   it('returns 422 when no accused details are recorded', async () => {
-    p.case.findUnique.mockResolvedValue({ id: 'case-1', accused: null });
+    p.case.findFirst.mockResolvedValue({ id: 'case-1', accused: null });
     const res = await request(app).post('/api/cases/case-1/eligibility');
     expect(res.status).toBe(422);
   });
 
   it('stores the assessment and logs an event', async () => {
-    p.case.findUnique.mockResolvedValue(caseWithAccused);
+    p.case.findFirst.mockResolvedValue(caseWithAccused);
     p.eligibilityAssessment.create.mockResolvedValue({ id: 'asm-1', overall: 'ELIGIBLE_SOON' });
     const res = await request(app).post('/api/cases/case-1/eligibility');
     expect(res.status).toBe(201);
@@ -96,13 +96,13 @@ describe('POST /api/cases/:id/accused/verify', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('returns 404 when there is no accused record', async () => {
-    p.accused.findUnique.mockResolvedValue(null);
+    p.accused.findFirst.mockResolvedValue(null);
     const res = await request(app).post('/api/cases/case-1/accused/verify');
     expect(res.status).toBe(404);
   });
 
   it('marks the data verified and logs an event', async () => {
-    p.accused.findUnique.mockResolvedValue({ id: 'acc-1', caseId: 'case-1', dataVerified: false });
+    p.accused.findFirst.mockResolvedValue({ id: 'acc-1', caseId: 'case-1', dataVerified: false });
     p.accused.update.mockResolvedValue({ id: 'acc-1', dataVerified: true });
     const res = await request(app).post('/api/cases/case-1/accused/verify');
     expect(res.status).toBe(200);

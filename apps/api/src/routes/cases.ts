@@ -5,12 +5,20 @@ import { caseIntakeSchema, eligibilityReviewSchema } from '@urimai/validation';
 import { assessEligibility, CaseInput } from '../services/eligibility';
 import { prisma } from '../db/prisma';
 import { Role, Prisma } from '@prisma/client';
+import { JwtPayload } from '../utils/auth';
 
 const router = Router();
 
 const REVIEWERS = [Role.PLV, Role.LAWYER, Role.SYS_ADMIN];
 const toJson = (v: unknown) => JSON.parse(JSON.stringify(v)) as Prisma.InputJsonValue;
 const param = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] : v ?? '');
+
+// Which cases this user may see: admins see all, everyone else only their own district.
+const caseScope = (user: JwtPayload): { districtId?: string } | null => {
+  if (user.role === Role.SYS_ADMIN) return {};
+  return user.districtId ? { districtId: user.districtId } : null;
+};
+const NO_DISTRICT = { error: 'No district assigned to this account' };
 
 // Get cases for the logged-in citizen
 router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
@@ -68,11 +76,14 @@ router.post('/', requireAuth, validateRequest(caseIntakeSchema), async (req: Aut
   }
 });
 
-// Get all cases (PLV / Lawyer / Admin only)
-router.get('/', requireAuth, requireRole([Role.PLV, Role.LAWYER, Role.SYS_ADMIN]), async (req: AuthenticatedRequest, res: Response) => {
+// Get cases in the reviewer's district (admins: all districts)
+router.get('/', requireAuth, requireRole(REVIEWERS), async (req: AuthenticatedRequest, res: Response) => {
   try {
-    // In a real app, we'd filter by districtId for PLVs, etc.
+    const scope = caseScope(req.user!);
+    if (!scope) return res.status(403).json(NO_DISTRICT);
+
     const cases = await prisma.case.findMany({
+      where: scope,
       include: {
         family: { select: { id: true, phoneNumber: true } }
       },
@@ -88,8 +99,11 @@ router.get('/', requireAuth, requireRole([Role.PLV, Role.LAWYER, Role.SYS_ADMIN]
 // Run the eligibility engine on a case and store the result (PLV / Lawyer / Admin only)
 router.post('/:id/eligibility', requireAuth, requireRole(REVIEWERS), async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const found = await prisma.case.findUnique({
-      where: { id: param(req.params.id) },
+    const scope = caseScope(req.user!);
+    if (!scope) return res.status(403).json(NO_DISTRICT);
+
+    const found = await prisma.case.findFirst({
+      where: { id: param(req.params.id), ...scope },
       include: { accused: { include: { offences: true } } }
     });
     if (!found) return res.status(404).json({ error: 'Case not found' });
@@ -147,8 +161,11 @@ router.post('/:id/eligibility/:assessmentId/review', requireAuth, requireRole(RE
     const { decision, note, overrideOverall } = req.body;
     const userId = req.user!.userId;
 
+    const scope = caseScope(req.user!);
+    if (!scope) return res.status(403).json(NO_DISTRICT);
+
     const assessment = await prisma.eligibilityAssessment.findFirst({
-      where: { id: param(req.params.assessmentId), caseId: param(req.params.id) }
+      where: { id: param(req.params.assessmentId), caseId: param(req.params.id), caseRecord: scope }
     });
     if (!assessment) return res.status(404).json({ error: 'Assessment not found' });
     if (assessment.reviewDecision) return res.status(409).json({ error: 'Assessment already reviewed' });
@@ -190,7 +207,10 @@ router.post('/:id/eligibility/:assessmentId/review', requireAuth, requireRole(RE
 // A reviewer confirms the accused's facts have been checked against documents
 router.post('/:id/accused/verify', requireAuth, requireRole(REVIEWERS), async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const accused = await prisma.accused.findUnique({ where: { caseId: param(req.params.id) } });
+    const scope = caseScope(req.user!);
+    if (!scope) return res.status(403).json(NO_DISTRICT);
+
+    const accused = await prisma.accused.findFirst({ where: { caseId: param(req.params.id), caseRecord: scope } });
     if (!accused) return res.status(404).json({ error: 'Accused details not found' });
     if (accused.dataVerified) return res.json({ accused });
 

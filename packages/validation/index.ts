@@ -6,6 +6,13 @@ export const loginSchema = z.object({
   otp: z.string().optional(),
 });
 
+export const registerSchema = z.object({
+  phoneNumber: z.string().regex(/^[6-9]\d{9}$/, 'Enter a valid 10-digit Indian mobile number'),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(72, 'Password is too long'),
+  districtId: z.string().min(1).optional(),
+  languagePref: z.enum(['ta', 'en']).default('ta'),
+});
+
 export const offenceSchema = z.object({
   act: z.enum(['BNS', 'IPC', 'SPECIAL']),
   section: z.string().min(1),
