@@ -1,11 +1,16 @@
-import { Router, Response } from 'express';
+import { Router, Response, NextFunction } from 'express';
 import { requireAuth, requireRole, AuthenticatedRequest } from '../middleware/rbac';
 import { validateRequest } from '../middleware/validate';
-import { caseIntakeSchema } from '@urimai/validation';
+import { caseIntakeSchema, eligibilityReviewSchema } from '@urimai/validation';
+import { assessEligibility, CaseInput } from '../services/eligibility';
 import { prisma } from '../db/prisma';
-import { Role } from '@prisma/client';
+import { Role, Prisma } from '@prisma/client';
 
 const router = Router();
+
+const REVIEWERS = [Role.PLV, Role.LAWYER, Role.SYS_ADMIN];
+const toJson = (v: unknown) => JSON.parse(JSON.stringify(v)) as Prisma.InputJsonValue;
+const param = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] : v ?? '');
 
 // Get cases for the logged-in citizen
 router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
@@ -77,6 +82,128 @@ router.get('/', requireAuth, requireRole([Role.PLV, Role.LAWYER, Role.SYS_ADMIN]
   } catch (error) {
     console.error('Error fetching all cases:', error);
     return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Run the eligibility engine on a case and store the result (PLV / Lawyer / Admin only)
+router.post('/:id/eligibility', requireAuth, requireRole(REVIEWERS), async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const found = await prisma.case.findUnique({
+      where: { id: param(req.params.id) },
+      include: { accused: { include: { offences: true } } }
+    });
+    if (!found) return res.status(404).json({ error: 'Case not found' });
+    if (!found.accused) return res.status(422).json({ error: 'No accused details recorded for this case' });
+
+    const input: CaseInput = {
+      chargesheetFiledOn: found.chargesheetFiledOn,
+      accused: {
+        custodyStartDate: found.accused.custodyStartDate,
+        isFirstTimeOffender: found.accused.isFirstTimeOffender,
+        otherPendingCases: found.accused.otherPendingCases,
+        dataVerified: found.accused.dataVerified,
+        offences: found.accused.offences.map((o) => ({
+          act: o.act,
+          section: o.section,
+          isBailable: o.isBailable,
+          maxSentenceYears: o.maxSentenceYears,
+          punishableWithDeathOrLife: o.punishableWithDeathOrLife
+        }))
+      }
+    };
+    const assessment = assessEligibility(input);
+    const userId = req.user!.userId;
+
+    const saved = await prisma.$transaction(async (tx) => {
+      const record = await tx.eligibilityAssessment.create({
+        data: {
+          caseId: found.id,
+          rulesetVersion: assessment.rulesetVersion,
+          overall: assessment.overall,
+          result: toJson(assessment),
+          inputSnapshot: toJson(input)
+        }
+      });
+      await tx.caseEvent.create({
+        data: {
+          caseId: found.id,
+          eventType: 'ELIGIBILITY_ASSESSED',
+          actorId: userId,
+          details: { assessmentId: record.id, overall: assessment.overall }
+        }
+      });
+      return record;
+    });
+
+    return res.status(201).json({ assessment: saved });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// A reviewer confirms or overrides an assessment; every disagreement is logged
+router.post('/:id/eligibility/:assessmentId/review', requireAuth, requireRole(REVIEWERS), validateRequest(eligibilityReviewSchema), async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const { decision, note, overrideOverall } = req.body;
+    const userId = req.user!.userId;
+
+    const assessment = await prisma.eligibilityAssessment.findFirst({
+      where: { id: param(req.params.assessmentId), caseId: param(req.params.id) }
+    });
+    if (!assessment) return res.status(404).json({ error: 'Assessment not found' });
+    if (assessment.reviewDecision) return res.status(409).json({ error: 'Assessment already reviewed' });
+
+    const overridden = decision === 'OVERRIDDEN';
+    const updated = await prisma.$transaction(async (tx) => {
+      const record = await tx.eligibilityAssessment.update({
+        where: { id: assessment.id },
+        data: {
+          reviewerId: userId,
+          reviewDecision: decision,
+          reviewedAt: new Date(),
+          reviewNote: note,
+          overrideOverall: overridden ? overrideOverall : null
+        }
+      });
+      await tx.caseEvent.create({
+        data: {
+          caseId: assessment.caseId,
+          eventType: overridden ? 'AI_OVERRIDE' : 'ELIGIBILITY_CONFIRMED',
+          actorId: userId,
+          details: {
+            assessmentId: assessment.id,
+            aiOverall: assessment.overall,
+            reviewerOverall: overridden ? overrideOverall : assessment.overall,
+            note
+          }
+        }
+      });
+      return record;
+    });
+
+    return res.json({ assessment: updated });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// A reviewer confirms the accused's facts have been checked against documents
+router.post('/:id/accused/verify', requireAuth, requireRole(REVIEWERS), async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const accused = await prisma.accused.findUnique({ where: { caseId: param(req.params.id) } });
+    if (!accused) return res.status(404).json({ error: 'Accused details not found' });
+    if (accused.dataVerified) return res.json({ accused });
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const record = await tx.accused.update({ where: { id: accused.id }, data: { dataVerified: true } });
+      await tx.caseEvent.create({
+        data: { caseId: accused.caseId, eventType: 'DATA_VERIFIED', actorId: req.user!.userId, details: { accusedId: accused.id } }
+      });
+      return record;
+    });
+    return res.json({ accused: updated });
+  } catch (error) {
+    next(error);
   }
 });
 

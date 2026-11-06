@@ -36,3 +36,14 @@ export const aiOverrideSchema = z.object({
   reason: z.string().min(10, 'Override reason must be detailed'),
   newStatus: z.string(),
 });
+
+export const eligibilityReviewSchema = z
+  .object({
+    decision: z.enum(['CONFIRMED', 'OVERRIDDEN']),
+    note: z.string().min(10, 'Note must be at least 10 characters'),
+    overrideOverall: z.enum(['ELIGIBLE_NOW', 'ELIGIBLE_SOON', 'NOT_ELIGIBLE', 'NEEDS_DATA']).optional(),
+  })
+  .refine((d) => d.decision !== 'OVERRIDDEN' || !!d.overrideOverall, {
+    message: 'overrideOverall is required when decision is OVERRIDDEN',
+    path: ['overrideOverall'],
+  });

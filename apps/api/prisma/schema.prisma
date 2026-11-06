@@ -40,6 +40,11 @@ enum LawAct {
   SPECIAL
 }
 
+enum ReviewDecision {
+  CONFIRMED
+  OVERRIDDEN
+}
+
 model User {
   id             String    @id @default(uuid())
   phoneNumber    String    @unique // Used for primary auth
@@ -56,6 +61,7 @@ model User {
   casesAsLawyer  Case[]    @relation("LawyerCases")
   events         CaseEvent[]
   notifications  Notification[]
+  reviewedAssessments EligibilityAssessment[] @relation("AssessmentReviewer")
 }
 
 model Case {
@@ -75,6 +81,7 @@ model Case {
 
   // Relationships
   accused            Accused?
+  assessments        EligibilityAssessment[]
   documents          Document[]
   events             CaseEvent[]
 }
@@ -102,6 +109,23 @@ model Offence {
   isBailable                Boolean?
   maxSentenceYears          Float?
   punishableWithDeathOrLife Boolean  @default(false)
+}
+
+model EligibilityAssessment {
+  id              String          @id @default(uuid())
+  caseId          String
+  caseRecord      Case            @relation(fields: [caseId], references: [id])
+  rulesetVersion  String
+  overall         String          // the engine's overall result
+  result          Json            // full engine output
+  inputSnapshot   Json            // the facts the engine used
+  createdAt       DateTime        @default(now())
+  reviewerId      String?
+  reviewer        User?           @relation("AssessmentReviewer", fields: [reviewerId], references: [id])
+  reviewDecision  ReviewDecision?
+  reviewedAt      DateTime?
+  reviewNote      String?
+  overrideOverall String?         // the reviewer's result when they disagree
 }
 
 model Document {
