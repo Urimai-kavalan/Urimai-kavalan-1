@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Scale, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
 import { fetchApi } from '../utils/api';
@@ -108,6 +108,13 @@ export const Login: React.FC = () => {
           >
             {loading ? '...' : (t('actions.login') || 'Login')}
           </button>
+
+          <p className="text-center text-sm text-text-secondary">
+            {lang === 'ta' ? 'புதியவரா?' : 'New here?'}{' '}
+            <Link to="/signup" className="text-primary font-medium hover:underline">
+              {lang === 'ta' ? 'கணக்கை உருவாக்குங்கள்' : 'Create an account'}
+            </Link>
+          </p>
         </form>
       </div>
     </div>

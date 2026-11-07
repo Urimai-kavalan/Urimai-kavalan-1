@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../context/useLanguage';
 import { fetchApi } from '../utils/api';
-import { MessageSquare, Send, Info, ShieldCheck } from 'lucide-react';
+import { MessageSquare, Send, Info } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -159,10 +159,10 @@ export const LawBot: React.FC = () => {
               {/* Citation */}
               {msg.role === 'assistant' && msg.citation && (
                 <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-1 text-xs text-primary font-medium">
-                  <ShieldCheck size={14} />
+                  <Info size={14} />
 
                   <span>
-                    Verified Reference: {msg.citation}
+                    Draft reference, not yet reviewed by a lawyer: {msg.citation}
                   </span>
                 </div>
               )}

@@ -15,6 +15,7 @@ import { Rights } from './pages/Rights';
 import { Documents } from './pages/Documents';
 import { LawBot } from './pages/LawBot';
 import { Login } from './pages/Login';
+import { Signup } from './pages/Signup';
 import { Cases } from './pages/Cases';
 
 // Landing Page
@@ -382,6 +383,7 @@ function App() {
             {/* Public Routes */}
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
+                        <Route path="/signup" element={<Signup />} />
             
 
             {/* Protected Routes */}
