@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, FileText, Scale, MessageSquare, Bell, User, LogOut, Settings, Menu, X } from 'lucide-react';
+import { Home, FileText, Scale, MessageSquare, Bell, User, LogOut, Settings, Menu, X, ClipboardCheck } from 'lucide-react';
 import { useLanguage } from '../context/useLanguage';
 import { useAuth } from '../context/useAuth';
 
@@ -11,12 +11,15 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const isReviewer = !!user && ['PLV', 'LAWYER', 'SYS_ADMIN'].includes(user.role);
+
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'nav.home' },
     { path: '/cases', icon: FileText, label: 'nav.cases' },
     { path: '/documents', icon: FileText, label: 'nav.documents' },
     { path: '/rights', icon: Scale, label: 'nav.rights' },
     { path: '/lawbot', icon: MessageSquare, label: 'nav.ai_assistant' },
+    ...(isReviewer ? [{ path: '/review', icon: ClipboardCheck, label: 'Review' }] : []),
   ];
 
   const closeMenus = () => {

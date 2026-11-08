@@ -85,7 +85,9 @@ router.get('/', requireAuth, requireRole(REVIEWERS), async (req: AuthenticatedRe
     const cases = await prisma.case.findMany({
       where: scope,
       include: {
-        family: { select: { id: true, phoneNumber: true } }
+        family: { select: { id: true, phoneNumber: true } },
+        accused: { include: { offences: true } },
+        assessments: { orderBy: { createdAt: 'desc' }, take: 1 }
       },
       orderBy: { createdAt: 'desc' }
     });

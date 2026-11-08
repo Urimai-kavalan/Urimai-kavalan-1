@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { fetchApi } from './utils/api';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 
 import { LanguageProvider } from './context/LanguageContext';
@@ -16,6 +14,8 @@ import { Documents } from './pages/Documents';
 import { LawBot } from './pages/LawBot';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
+import { RegisterCase } from './pages/RegisterCase';
+import { Review } from './pages/Review';
 import { Cases } from './pages/Cases';
 
 // Landing Page
@@ -63,171 +63,6 @@ const Landing = () => {
   );
 };
 
-// Register Page
-const Register = () => {
-  const { lang } = useLanguage();
-
-  const [policeStation, setPoliceStation] = useState('');
-  const [districtId, setDistrictId] = useState('chennai-01');
-  const [firNumber, setFirNumber] = useState('');
-  const [cnrNumber, setCnrNumber] = useState('');
-
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-
-  const isTamil = lang === 'ta';
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    setMessage('');
-    setError('');
-    setLoading(true);
-
-    try {
-      await fetchApi('/cases', {
-        method: 'POST',
-        body: JSON.stringify({
-          policeStation: policeStation.trim(),
-          districtId: districtId.trim(),
-          firNumber: firNumber.trim() || undefined,
-          cnrNumber: cnrNumber.trim() || undefined,
-        }),
-      });
-
-      setMessage(
-        isTamil
-          ? 'வழக்கு வெற்றிகரமாக பதிவு செய்யப்பட்டது!'
-          : 'Case registered successfully!'
-      );
-
-      setPoliceStation('');
-      setFirNumber('');
-      setCnrNumber('');
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : isTamil
-            ? 'வழக்கைப் பதிவு செய்ய முடியவில்லை.'
-            : 'Unable to register case.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-primary mb-2">
-        {isTamil ? 'வழக்கைப் பதிவு செய்க' : 'Register Case'}
-      </h1>
-
-      <p className="text-text-secondary mb-6">
-        {isTamil
-          ? 'கீழே உள்ள வழக்கு விவரங்களை உள்ளிடவும்.'
-          : 'Enter the case details below.'}
-      </p>
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-
-        <div>
-          <label className="block font-medium mb-2">
-            {isTamil ? 'காவல் நிலையம்' : 'Police Station'} *
-          </label>
-          <input
-            type="text"
-            value={policeStation}
-            onChange={(e) => setPoliceStation(e.target.value)}
-            required
-            className="w-full border rounded-lg p-3"
-            placeholder={
-              isTamil ? 'காவல் நிலையத்தின் பெயர்' : 'Enter police station'
-            }
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium mb-2">
-            {isTamil ? 'மாவட்ட ID' : 'District ID'} *
-          </label>
-          <input
-            type="text"
-            value={districtId}
-            onChange={(e) => setDistrictId(e.target.value)}
-            required
-            className="w-full border rounded-lg p-3"
-            placeholder="chennai-01"
-          />
-          <p className="text-sm text-text-secondary mt-1">
-            {isTamil
-              ? 'உங்கள் மாவட்டத்திற்கான சரியான ID-ஐ உள்ளிடவும்.'
-              : 'Enter the district ID configured by the project.'}
-          </p>
-        </div>
-
-        <div>
-          <label className="block font-medium mb-2">
-            {isTamil ? 'FIR எண்' : 'FIR Number'}
-          </label>
-          <input
-            type="text"
-            value={firNumber}
-            onChange={(e) => setFirNumber(e.target.value)}
-            className="w-full border rounded-lg p-3"
-            placeholder="Optional"
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium mb-2">
-            {isTamil ? 'CNR எண்' : 'CNR Number'}
-          </label>
-          <input
-            type="text"
-            value={cnrNumber}
-            onChange={(e) => setCnrNumber(e.target.value)}
-            className="w-full border rounded-lg p-3"
-            placeholder="Optional"
-          />
-        </div>
-
-        {message && (
-          <p className="text-green-700 font-medium" role="status">
-            {message}
-          </p>
-        )}
-
-        {error && (
-          <p className="text-red-600 font-medium" role="alert">
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full btn-primary disabled:opacity-50"
-        >
-          {loading
-            ? isTamil ? 'பதிவு செய்கிறது...' : 'Submitting...'
-            : isTamil ? 'வழக்கைப் பதிவு செய்' : 'Submit Case'}
-        </button>
-
-        <Link
-          to="/cases"
-          className="block text-center text-primary underline"
-        >
-          {isTamil ? 'வழக்குகளைக் காண்க' : 'View My Cases'}
-        </Link>
-
-      </form>
-    </div>
-  );
-};
-
-// Profile Page
 // Profile Page
 const Profile = () => {
   const { user } = useAuth();
@@ -383,8 +218,8 @@ function App() {
             {/* Public Routes */}
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
-                        <Route path="/signup" element={<Signup />} />
-            
+            <Route path="/signup" element={<Signup />} />
+
 
             {/* Protected Routes */}
             <Route
@@ -392,11 +227,22 @@ function App() {
   element={
     <ProtectedRoute>
       <Layout>
-        <Register />
+        <RegisterCase />
       </Layout>
     </ProtectedRoute>
   }
 />
+            <Route
+              path="/review"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Review />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/dashboard"
               element={
